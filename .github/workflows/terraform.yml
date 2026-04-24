@@ -10,6 +10,9 @@ on:
           - plan
           - apply
           - destroy
+        confirm_destroy:
+        description: "Digite DESTROY para confirmar"
+        required: false
 
 jobs:
   terraform:
@@ -44,8 +47,6 @@ jobs:
         if: ${{ github.event.inputs.action == 'destroy' }}
         run: terraform destroy -auto-approve
 
-      - name: Confirmação de Destroy
-        if: ${{ github.event.inputs.action == 'destroy' }}
-        run: |
-          echo "Você escolheu destruir a infra"
-          exit 1
+      - name: Aviso se não confirmou destroy
+        if: ${{ github.event.inputs.action == 'destroy' && github.event.inputs.confirm_destroy != 'DESTROY' }}
+        run: echo "Destroy não executado. Confirmação inválida."
