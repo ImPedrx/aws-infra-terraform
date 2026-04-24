@@ -10,7 +10,7 @@ on:
           - plan
           - apply
           - destroy
-        confirm_destroy:
+      confirm_destroy:
         description: "Digite DESTROY para confirmar"
         required: false
 
