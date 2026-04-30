@@ -25,7 +25,7 @@ resource "aws_security_group" "security-group-1" {
 resource "aws_vpc_security_group_ingress_rule" "ssh-access" {
   security_group_id = aws_security_group.security-group-1.id
 
-  cidr_ipv4   = "186.236.78.16/32"
+  cidr_ipv4   = "0.0.0.0/0"
   from_port   = 22
   ip_protocol = "tcp"
   to_port     = 22
