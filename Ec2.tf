@@ -4,7 +4,7 @@ resource "aws_instance" "ec2-1" {
   key_name               = "deployer"
   vpc_security_group_ids = [aws_security_group.security-group-1.id]
   iam_instance_profile   = "ECR-TRF"
-  user_data = file("user_data.sh")
+  user_data              = file("user_data.sh")
 
   tags = {
     Name    = "ec2-1"
@@ -19,7 +19,7 @@ resource "aws_eip" "ec2_ip" {
 
 # Associa à instância
 data "aws_eip" "ec2_ip" {
-  id = "eipalloc-0a1b2c3d4e5f"  # 🔧 seu Allocation ID
+  id = "eipalloc-0a1b2c3d4e5f" # 🔧 seu Allocation ID
 }
 
 # Output para você ver o IP após o apply
