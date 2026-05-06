@@ -8,23 +8,24 @@ resource "aws_instance" "ec2-1" {
 
   tags = {
     Name    = "ec2-1"
-    manager = "Pedro"
+    manager = "Pedro3"
   }
 }
 
-# Aloca o Elastic IP
-resource "aws_eip" "ec2_ip" {
-  domain = "vpc"
-}
-
-# Associa à instância
+# Busca o Elastic IP já existente (criado manualmente na AWS)
 data "aws_eip" "ec2_ip" {
-  id = "eipalloc-0a1b2c3d4e5f"  # 🔧 seu Allocation ID
+  id = "eipalloc-0120c9075d83de696"
 }
 
-# Output para você ver o IP após o apply
+# Associa o Elastic IP à instância
+resource "aws_eip_association" "ec2_ip_assoc" {
+  instance_id   = aws_instance.ec2-1.id
+  allocation_id = data.aws_eip.ec2_ip.id
+}
+
+# Output do IP
 output "ec2_public_ip" {
-  value = aws_eip.ec2_ip.public_ip
+  value = data.aws_eip.ec2_ip.public_ip
 }
 
 resource "aws_security_group" "security-group-1" {
@@ -39,7 +40,6 @@ resource "aws_security_group" "security-group-1" {
 
 resource "aws_vpc_security_group_ingress_rule" "ssh-access" {
   security_group_id = aws_security_group.security-group-1.id
-
   cidr_ipv4   = "0.0.0.0/0"
   from_port   = 22
   ip_protocol = "tcp"
@@ -48,7 +48,6 @@ resource "aws_vpc_security_group_ingress_rule" "ssh-access" {
 
 resource "aws_vpc_security_group_ingress_rule" "allow-http" {
   security_group_id = aws_security_group.security-group-1.id
-
   cidr_ipv4   = "0.0.0.0/0"
   from_port   = 80
   ip_protocol = "tcp"
@@ -57,7 +56,6 @@ resource "aws_vpc_security_group_ingress_rule" "allow-http" {
 
 resource "aws_vpc_security_group_ingress_rule" "allow-9090" {
   security_group_id = aws_security_group.security-group-1.id
-
   cidr_ipv4   = "0.0.0.0/0"
   from_port   = 9090
   ip_protocol = "tcp"
@@ -66,16 +64,13 @@ resource "aws_vpc_security_group_ingress_rule" "allow-9090" {
 
 resource "aws_vpc_security_group_ingress_rule" "allow-https" {
   security_group_id = aws_security_group.security-group-1.id
-
   cidr_ipv4   = "0.0.0.0/0"
   from_port   = 443
   ip_protocol = "tcp"
   to_port     = 443
 }
 
-
 resource "aws_vpc_security_group_egress_rule" "allow-all-outbound" {
-
   security_group_id = aws_security_group.security-group-1.id
   cidr_ipv4         = "0.0.0.0/0"
   ip_protocol       = -1
