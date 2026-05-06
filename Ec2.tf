@@ -12,6 +12,21 @@ resource "aws_instance" "ec2-1" {
   }
 }
 
+# Aloca o Elastic IP
+resource "aws_eip" "ec2_ip" {
+  domain = "vpc"
+}
+
+# Associa à instância
+data "aws_eip" "ec2_ip" {
+  id = "eipalloc-0a1b2c3d4e5f"  # 🔧 seu Allocation ID
+}
+
+# Output para você ver o IP após o apply
+output "ec2_public_ip" {
+  value = aws_eip.ec2_ip.public_ip
+}
+
 resource "aws_security_group" "security-group-1" {
   name        = "security-group-1"
   description = "Firrewall rules for Ec2-1"
@@ -38,6 +53,15 @@ resource "aws_vpc_security_group_ingress_rule" "allow-http" {
   from_port   = 80
   ip_protocol = "tcp"
   to_port     = 80
+}
+
+resource "aws_vpc_security_group_ingress_rule" "allow-9090 port for container docker" {
+  security_group_id = aws_security_group.security-group-1.id
+
+  cidr_ipv4   = "0.0.0.0/0"
+  from_port   = 9090
+  ip_protocol = "tcp"
+  to_port     = 9090
 }
 
 resource "aws_vpc_security_group_ingress_rule" "allow-https" {
