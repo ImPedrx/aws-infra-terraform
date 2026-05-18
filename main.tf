@@ -7,8 +7,8 @@ terraform {
     }
   }
   backend "s3" {
-    bucket = "pedrx-remotestate-bucket"
-    key    = "aws-Staes/terraform.tfstate"
+    bucket = "pedrx-terraform-state-2025"
+    key    = "aws-states/terraform.tfstate"
     region = "us-east-2"
   }
 }
