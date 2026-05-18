@@ -1,0 +1,5 @@
+environment       = "dev"
+ami               = "ami-0a1b6a02658659c2a"
+vpc_id            = "vpc-07f184ea2eb01a370"
+eip_allocation_id = "eipalloc-090c0900e354d5ca8"
+user_data_path    = "../../user_data.sh"

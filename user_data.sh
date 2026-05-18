@@ -15,10 +15,10 @@ usermod -aG docker ec2-user
 
 # Login no ECR
 aws ecr get-login-password --region us-east-2 | \
-docker login --username AWS --password-stdin 142280718316.dkr.ecr.us-east-2.amazonaws.com
+docker login --username AWS --password-stdin 559487953529.dkr.ecr.us-east-2.amazonaws.com/pedrx12356
 
 # Pull da imagem
-docker pull 142280718316.dkr.ecr.us-east-2.amazonaws.com/pedrx12356:latest
+docker pull 559487953529.dkr.ecr.us-east-2.amazonaws.com/pedrx12356:latest
 
 # Rodar container
-docker run -d -p 9090:80 142280718316.dkr.ecr.us-east-2.amazonaws.com/pedrx12356:latest
+docker run -d -p 9090:80 559487953529.dkr.ecr.us-east-2.amazonaws.com/pedrx12356:latest
