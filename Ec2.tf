@@ -14,7 +14,7 @@ resource "aws_instance" "ec2-1" {
 
 # Busca o Elastic IP já existente (criado manualmente na AWS)
 data "aws_eip" "ec2_ip" {
-  id = "eipalloc-0120c9075d83de696"
+  id = "eipalloc-090c0900e354d5ca8"
 }
 
 # Associa o Elastic IP à instância
@@ -31,7 +31,7 @@ output "ec2_public_ip" {
 resource "aws_security_group" "security-group-1" {
   name        = "security-group-1"
   description = "Firrewall rules for Ec2-1"
-  vpc_id      = "vpc-0ebe4b353aa51f708"
+  vpc_id      = "vpc-07f184ea2eb01a370"
 
   tags = {
     Name = "allow_tls"
