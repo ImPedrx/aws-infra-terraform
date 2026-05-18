@@ -27,7 +27,7 @@ on:
 jobs:
   terraform:
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environment == 'producao' && 'producao' || 'dev' }}
+    environment: ${{ github.event.inputs.environment == 'producao' && 'producao' || github.event.inputs.environment == 'staging' && 'staging' || 'dev' }}
 
     steps:
       - name: Checkout código
