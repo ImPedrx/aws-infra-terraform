@@ -23,12 +23,12 @@ resource "aws_eip_association" "eip_assoc" {
 }
 
 resource "aws_security_group" "sg" {
-  name        = "sg-${var.environment}"
+  name = "security-group-${var.environment}"
   description = "Security Group - ${var.environment}"
   vpc_id      = var.vpc_id
 
   tags = {
-    Name        = "sg-${var.environment}"
+    Name = "security-group-${var.environment}"
     Environment = var.environment
   }
 }
