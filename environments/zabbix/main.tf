@@ -1,13 +1,11 @@
 module "zabbix" {
   source = "../../modules/zabbix"
 
-  ami               = var.ami
   vpc_id            = var.vpc_id
   eip_allocation_id = var.eip_allocation_id
   user_data_path    = var.user_data_path
 }
 
-variable "ami" {}
 variable "vpc_id" {}
 variable "eip_allocation_id" {}
 variable "user_data_path" {}

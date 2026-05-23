@@ -1,8 +1,3 @@
-variable "ami" {
-  description = "AMI da instancia"
-  type        = string
-}
-
 variable "instance_type" {
   description = "Tipo da instancia EC2 (Zabbix recomenda minimo t3.medium, mas t3.micro funciona para Free Tier)"
   type        = string
