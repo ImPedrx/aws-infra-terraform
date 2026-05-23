@@ -11,6 +11,7 @@ on:
           - dev
           - staging
           - producao
+          - zabbix
       action:
         description: "Ação do Terraform"
         required: true
