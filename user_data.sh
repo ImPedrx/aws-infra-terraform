@@ -21,4 +21,4 @@ docker login --username AWS --password-stdin 559487953529.dkr.ecr.us-east-2.amaz
 docker pull 559487953529.dkr.ecr.us-east-2.amazonaws.com/pedrx12356:latest
 
 # Rodar container
-docker run -d -p 9090:80 559487953529.dkr.ecr.us-east-2.amazonaws.com/pedrx12356:latest
+docker run -d -p 80:80 --name app 559487953529.dkr.ecr.us-east-2.amazonaws.com/pedrx12356:latest
