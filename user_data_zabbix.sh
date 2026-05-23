@@ -4,8 +4,8 @@ set -e
 # ─── Atualização do sistema ───────────────────────────────────────────────────
 dnf update -y
 
-# ─── Repositório oficial Zabbix 7.0 (RHEL 9 / Amazon Linux 2023) ─────────────
-rpm -Uvh https://repo.zabbix.com/zabbix/7.0/rhel/9/x86_64/zabbix-release-7.0-5.el9.noarch.rpm
+# ─── Repositório oficial Zabbix 7.0 (Amazon Linux 2023) ──────────────────────
+rpm -Uvh https://repo.zabbix.com/zabbix/7.0/amazonlinux/2023/x86_64/zabbix-release-latest-7.0.amzn2023.noarch.rpm
 dnf clean all
 
 # ─── Instalação: Zabbix Server + Frontend + Agent ────────────────────────────
