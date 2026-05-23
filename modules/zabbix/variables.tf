@@ -4,9 +4,9 @@ variable "ami" {
 }
 
 variable "instance_type" {
-  description = "Tipo da instancia EC2 (Zabbix recomenda minimo t3.medium)"
+  description = "Tipo da instancia EC2 (Zabbix recomenda minimo t3.medium, mas t3.micro funciona para Free Tier)"
   type        = string
-  default     = "t3.medium"
+  default     = "t3.micro"
 }
 
 variable "key_name" {
