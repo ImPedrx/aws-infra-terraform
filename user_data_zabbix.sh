@@ -4,46 +4,82 @@ set -e
 # ─── Atualização do sistema ───────────────────────────────────────────────────
 dnf update -y
 
-# ─── Repositório oficial Zabbix 7.0 (Amazon Linux 2023) ──────────────────────
-rpm -Uvh https://repo.zabbix.com/zabbix/7.0/amazonlinux/2023/x86_64/zabbix-release-latest-7.0.amzn2023.noarch.rpm
-dnf clean all
+# ─── Swap de 2GB (t3.micro só tem 1GB de RAM) ────────────────────────────────
+if [ ! -f /swapfile ]; then
+  fallocate -l 2G /swapfile
+  chmod 600 /swapfile
+  mkswap /swapfile
+  swapon /swapfile
+  echo '/swapfile none swap sw 0 0' >> /etc/fstab
+fi
 
-# ─── Instalação: Zabbix Server + Frontend + Agent ────────────────────────────
-dnf install -y \
-  zabbix-server-mysql \
-  zabbix-web-mysql \
-  zabbix-apache-conf \
-  zabbix-sql-scripts \
-  zabbix-selinux-policy \
-  zabbix-agent2
+# ─── Instalação do Docker ─────────────────────────────────────────────────────
+dnf install -y docker
+systemctl start docker
+systemctl enable docker
+usermod -aG docker ec2-user
 
-# ─── Instalação: MariaDB ──────────────────────────────────────────────────────
-dnf install -y mariadb-server
-systemctl start mariadb
-systemctl enable mariadb
+# ─── Docker Compose plugin (v2) ──────────────────────────────────────────────
+mkdir -p /usr/local/lib/docker/cli-plugins
+curl -SL https://github.com/docker/compose/releases/download/v2.27.0/docker-compose-linux-x86_64 \
+  -o /usr/local/lib/docker/cli-plugins/docker-compose
+chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
 
-# ─── Criação do banco de dados Zabbix ────────────────────────────────────────
-mysql -uroot <<'SQL'
-CREATE DATABASE zabbix CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
-CREATE USER 'zabbix'@'localhost' IDENTIFIED BY '123456';
-GRANT ALL PRIVILEGES ON zabbix.* TO 'zabbix'@'localhost';
-SET GLOBAL log_bin_trust_function_creators = 1;
-SQL
+# ─── Diretório do Zabbix ──────────────────────────────────────────────────────
+mkdir -p /opt/zabbix
+cd /opt/zabbix
 
-# ─── Importação do schema inicial ────────────────────────────────────────────
-zcat /usr/share/zabbix-sql-scripts/mysql/server.sql.gz | \
-  mysql --default-character-set=utf8mb4 -uzabbix -p123456 zabbix
+# ─── docker-compose.yml: MySQL + Zabbix Server + Zabbix Web (nginx) ──────────
+cat > docker-compose.yml <<'COMPOSE'
+services:
+  mysql:
+    image: mysql:8.0-oracle
+    restart: always
+    environment:
+      MYSQL_DATABASE: zabbix
+      MYSQL_USER: zabbix
+      MYSQL_PASSWORD: zabbix_pwd
+      MYSQL_ROOT_PASSWORD: root_pwd
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_bin
+    volumes:
+      - mysql_data:/var/lib/mysql
 
-# ─── Desativa log_bin_trust_function_creators após importação ─────────────────
-mysql -uroot -e "SET GLOBAL log_bin_trust_function_creators = 0;"
+  zabbix-server:
+    image: zabbix/zabbix-server-mysql:alpine-7.0-latest
+    restart: always
+    depends_on:
+      - mysql
+    environment:
+      DB_SERVER_HOST: mysql
+      MYSQL_DATABASE: zabbix
+      MYSQL_USER: zabbix
+      MYSQL_PASSWORD: zabbix_pwd
+      MYSQL_ROOT_PASSWORD: root_pwd
+    ports:
+      - "10051:10051"
 
-# ─── Configura senha do banco no Zabbix Server ───────────────────────────────
-sed -i 's/# DBPassword=/DBPassword=123456/' /etc/zabbix/zabbix_server.conf
+  zabbix-web:
+    image: zabbix/zabbix-web-nginx-mysql:alpine-7.0-latest
+    restart: always
+    depends_on:
+      - mysql
+      - zabbix-server
+    environment:
+      ZBX_SERVER_HOST: zabbix-server
+      DB_SERVER_HOST: mysql
+      MYSQL_DATABASE: zabbix
+      MYSQL_USER: zabbix
+      MYSQL_PASSWORD: zabbix_pwd
+      MYSQL_ROOT_PASSWORD: root_pwd
+      PHP_TZ: America/Sao_Paulo
+    ports:
+      - "80:8080"
 
-# ─── Configura timezone para o frontend (Brasil) ─────────────────────────────
-sed -i 's/# php_value date.timezone Europe\/Riga/php_value date.timezone America\/Sao_Paulo/' \
-  /etc/httpd/conf.d/zabbix.conf
+volumes:
+  mysql_data:
+COMPOSE
 
-# ─── Inicia e habilita todos os serviços ─────────────────────────────────────
-systemctl restart zabbix-server zabbix-agent2 httpd php-fpm
-systemctl enable  zabbix-server zabbix-agent2 httpd php-fpm
+# ─── Sobe a stack ─────────────────────────────────────────────────────────────
+docker compose up -d

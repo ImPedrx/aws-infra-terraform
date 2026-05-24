@@ -10,5 +10,5 @@ output "zabbix_instance_id" {
 
 output "zabbix_ui_url" {
   description = "URL de acesso a interface web do Zabbix"
-  value       = "http://${data.aws_eip.eip.public_ip}/zabbix"
+  value       = "http://${data.aws_eip.eip.public_ip}"
 }
