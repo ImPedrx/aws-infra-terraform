@@ -9,12 +9,13 @@ data "aws_ami" "amazon_linux_2023" {
 }
 
 resource "aws_instance" "zabbix" {
-  ami                    = data.aws_ami.amazon_linux_2023.id
-  instance_type          = var.instance_type
-  key_name               = var.key_name
-  vpc_security_group_ids = [aws_security_group.zabbix_sg.id]
-  iam_instance_profile   = var.iam_instance_profile
-  user_data              = file(var.user_data_path)
+  ami                         = data.aws_ami.amazon_linux_2023.id
+  instance_type               = var.instance_type
+  key_name                    = var.key_name
+  vpc_security_group_ids      = [aws_security_group.zabbix_sg.id]
+  iam_instance_profile        = var.iam_instance_profile
+  user_data                   = file(var.user_data_path)
+  user_data_replace_on_change = true
 
   tags = {
     Name        = "ec2-zabbix"
